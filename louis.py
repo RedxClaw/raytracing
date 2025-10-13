@@ -19,8 +19,6 @@ resolution_dico = {
     '1080': (1080, 1920)
 }
 
-# Bonjour Youla
-
 resolution = resolution_dico['360p']
 
 cam = (np.array([12, 0, 0]), 180, 0) # Position, Angle theta 0XY, Angle phi 0XYZ
