@@ -87,8 +87,8 @@ def verif_intersection(pos_pixels, pos_pt_focal, A, B, C, largeur_pixels, hauteu
     
 
 #caractéristiques écran:         
-largeur_pixel= 640
-hauteur_pixel= 360
+largeur_pixel = 640
+hauteur_pixel = 360
 
 #caractéristiques caméra
 x_cam = 8
@@ -96,19 +96,19 @@ y_cam = 0
 z_cam = 0
 angle_hor_cam = 0
 angle_ver_cam = 0  
-distance_focale= 8   
-pos_pt_focal= np.array([2,0,0])
-pos_cam= (x_cam, y_cam, z_cam, angle_hor_cam, angle_ver_cam)    
+distance_focale = 8   
+pos_pt_focal = np.array([2,0,0])
+pos_cam = (x_cam, y_cam, z_cam, angle_hor_cam, angle_ver_cam)    
 
 #Quatre coins écran
-A= (1, -8 , 4.5)
-B=(1, 8 , 4.5)
-C=(1, -8, -4.5)
-D=(1, 8, -4.5)
+A = (1, -8 , 4.5)
+B = (1, 8 , 4.5)
+C = (1, -8, -4.5)
+D = (1, 8, -4.5)
 
 
-sphere= (np.array([0,0,0]), 1, 1) #centre, rayon, couleur
-sphere2=(np.array([0.5,0,0.5]), 1.8, 3)
+sphere = (np.array([0, 0, 0]), 1, 1) #centre, rayon, couleur
+sphere2 = (np.array([0.5, 0, 0.5]), 1.8, 3)
 
 #sphere1={"position": [0,0,0], "rayon":1, "couleur":1}
 #sphere2= {"position": [0.5,0,0.5], "rayon":1.8, "couleur":3}

@@ -8,8 +8,8 @@ from module import coordinates, raytracing
 
 focal_length = 8
 
-screen_width = 8
-screen_height = 4.5
+screen_width = 16
+screen_height = 9
 
 resolution_dico = {
     '144p': (144, 256),
@@ -21,19 +21,19 @@ resolution_dico = {
 
 resolution = resolution_dico['360p']
 
-cam = (np.array([12, 0, 0]), np.array([-1, 0, 0]))
+cam = (np.array([12, 0, 0]), 180, 0) # Position, Angle theta 0XY, Angle phi 0XYZ
 ball = (np.array([0, 0, 0]), 1, 'blue')
 
 S = np.zeros(resolution)
 corners = coordinates.get_corners(cam, focal_length, screen_height, screen_width)
 
-for i in range(0, resolution[1]):
-    for j in range(0, resolution[0]):
+for i in range(0, resolution[0]):
+    for j in range(0, resolution[1]):
         x = coordinates.local_to_global(i, j, corners, resolution)
         S[i][j] = raytracing.intersection(cam[0], x, ball)
 
 plt.figure()
-plt.imshow(S, cmap='hot', origin='lower')
+plt.imshow(S, cmap='hot')
 plt.show()
 
 
