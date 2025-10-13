@@ -9,10 +9,11 @@ import math
 def intersection(F, x, ball):
     v = x - F
     v = v/norm(v)
+    d = ball[0]
 
     a = np.dot(v, v)
-    b = 2*np.dot(v, F)
-    c = (np.dot(F, F) - ball[1])
+    b = 2*np.dot(v, F - d)
+    c = (np.dot(F - d, F - d) - ball[1]**2)
 
     delta = b*b - 4*a*c
 

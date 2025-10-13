@@ -13,7 +13,7 @@ def angle_to_vector(theta, phi):
 
 def get_corners(cam, focal_length, screen_height, screen_width):
     vec1 = angle_to_vector(cam[1], cam[2])
-    vec2 = np.array([vec1[1], vec1[0], 0])
+    vec2 = np.array([-vec1[1], vec1[0], 0])
     vec3 = np.cross(vec1, vec2)
 
     vec1 = vec1/np.linalg.norm(vec1)
