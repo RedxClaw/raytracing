@@ -1,3 +1,5 @@
+# Code de Sophie
+
 import jax
 from jax import jit, vmap, lax
 import jax.numpy as jnp
@@ -19,7 +21,6 @@ def max_distance(liste_spheres, pos_pt_focal):
             max=max
         else: 
             max=i
-    
     return max 
 
 
