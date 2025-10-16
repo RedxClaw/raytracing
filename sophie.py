@@ -10,6 +10,9 @@ from module import coordinates, raytracing
 def solution_intersection(cam_pos, v, sphere):
     solution = []
 
+    d = sphere[0] # Position du centre
+    r = sphere[1] # Rayon de la sphère
+
     a = np.dot(v, v)
     b = 2 * np.dot(v, cam_pos - d)
     c = np.dot(cam_pos - d, cam_pos - d) - r*r
@@ -41,7 +44,7 @@ def couleur_pt(cam_pos, corners, liste_spheres):
         
     minimum = solutions_spheres.index(min(solutions_spheres))
     couleur = liste_spheres[minimum][2]
-    
+
     return couleur
 
 
