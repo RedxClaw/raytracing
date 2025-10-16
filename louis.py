@@ -21,8 +21,8 @@ resolution_dico = {
 
 resolution = resolution_dico['360p']
 
-cam = (np.array([12, 0, 0]), 180, 0) # Position, Angle theta 0XY, Angle phi 0XYZ
-ball = (np.array([1, 0, 4]), 1, 'blue')
+cam = (np.array([12, 0, 0]), 180, 0) # Vecteur Position, Angles Theta & Phi (coordonnées sphériques)
+ball = (np.array([1, 0, 4]), 1, 'blue') # Vecteur Position du centre, rayon, couleur
 
 S = np.zeros(resolution)
 corners = coordinates.get_corners(cam, focal_length, screen_height, screen_width)

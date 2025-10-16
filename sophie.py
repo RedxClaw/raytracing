@@ -5,75 +5,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 from functools import partial
 
+from module import coordinates, raytracing
 
-def pixels_to_global (pos_pixels, A, B, C, largeur_pixels, hauteur_pixels):
+def solution_intersection(cam_pos, v, sphere):
+    solution = []
 
-    t1= (1/largeur_pixels)*pos_pixels[0]
-    t2= (1/hauteur_pixels)*pos_pixels[1]
-    
-    pos_global= np.zeros(3)
+    a = np.dot(v, v)
+    b = 2 * np.dot(v, cam_pos - d)
+    c = np.dot(cam_pos - d, cam_pos - d) - r*r
+    delta = b*b - 4*a*c
 
-    pos_global[0]= A[0] * (1-t2-t1) + t1*B[0] + t2*C[0]
-    pos_global[1] =  A[1] * (1-t2-t1) + t1*B[1] + t2*C[1] 
-    pos_global[2] = A[2] * (1-t2-t1) + t1*B[2] + t2*C[2] 
-
-    return pos_global 
-
-
-def calcul_delta(pos_pt_focal, v, d, r):
-    
-    b= (2*np.dot(v, pos_pt_focal)-2*np.dot(d, v))
-    a= np.dot(v, v)
-    c= (np.dot(pos_pt_focal - d, pos_pt_focal - d)-r**2)
-
-    scalaire= (b*b)-(4*a*c)
-    return scalaire
-
-
-def solution_intersection(pos_pt_focal, v, d, r, pos_pixels, A, B, C, largeur_pixels, hauteur_pixels):
-    solution= []
-
-    b=2*np.dot(v, pos_pt_focal - d)
-    a=np.dot(v, v)
-    delta = calcul_delta(pos_pt_focal, v, d, r)
-
-    if delta==0: 
-        #if((-b/(2*a))>=0):
-            solution.append(-b/(2*a))
-       # else:
-            #solution=None
+    if delta == 0:
+        solution.append(-b/(2*a))
 
     elif delta > 0: 
-        sol1= (-b+np.sqrt(delta))/(2*a)
-        sol2= (-b-np.sqrt(delta))/(2*a)
+        solution.append((-b + np.sqrt(delta))/(2*a))
+        solution.append((-b - np.sqrt(delta))/(2*a))
 
-        #if(sol1>=0):
-           # solution.append(sol1)
-           # print("test")
-       # elif(sol2>=0):
-           # solution.append(sol2)
-        #else:
-           # solution=None 
-    elif(delta<0): 
-        solution= None
+    elif delta < 0: 
+        solution = None
+
     return solution
 
 
-def couleur_pt(pos_pt_focal, liste_spheres, pos_pixels, A, B, C, largeur_pixels, hauteur_pixels):
-    v=pixels_to_global(pos_pixels, A, B, C, largeur_pixels, hauteur_pixels)
+def couleur_pt(cam_pos, corners, liste_spheres):
+    v = coordinates.local_to_global(i, j, corners, resolution)
 
-    solutions_spheres=[]
+    solutions_spheres = []
 
-    for sphere in liste_spheres: 
-        #print(solution_intersection(pos_pt_focal,v, sphere[0], sphere[1], pos_pixels, A, B, C, largeur_pixels, hauteur_pixels))
-        if (solution_intersection(pos_pt_focal,v, sphere[0], sphere[1], pos_pixels, A, B, C, largeur_pixels, hauteur_pixels)!=None):
-            solutions_spheres.append(solution_intersection(pos_pt_focal,v, sphere[0], sphere[1], pos_pixels, A, B, C, largeur_pixels, hauteur_pixels))
+    for sphere in liste_spheres:
+        if not solution_intersection(cam_pos, v, sphere[0], sphere[1], pos_pixels):
+            solutions_spheres.append(solution_intersection(cam_pos,v, sphere[0], sphere[1]))
         else:
             return 0
         
-    minimum= solutions_spheres.index(min(solutions_spheres))
-    couleur= liste_spheres[minimum][2]
-    print(couleur)
+    minimum = solutions_spheres.index(min(solutions_spheres))
+    couleur = liste_spheres[minimum][2]
+    
     return couleur
 
 
@@ -81,33 +49,30 @@ def couleur_pt(pos_pt_focal, liste_spheres, pos_pixels, A, B, C, largeur_pixels,
 largeur_pixel= 256
 hauteur_pixel= 144
 
-#caractéristiques caméra
-x_cam = 8
-y_cam = 0
-z_cam = 0
-angle_hor_cam = 0
-angle_ver_cam = 0  
-distance_focale= 8   
-pos_pt_focal= np.array([2,0,0])
-pos_cam= (x_cam, y_cam, z_cam, angle_hor_cam, angle_ver_cam)    
+resolution_dico = {
+    '144p': (144, 256),
+    '360p': (360, 640),
+    '480p': (480, 854),
+    '720p': (720, 1280),
+    '1080': (1080, 1920)
+}
 
-#Quatre coins écran
-A= (1, -8 , 4.5)
-B=(1, 8 , 4.5)
-C=(1, -8, -4.5)
-D=(1, 8, -4.5)
+resolution = resolution_dico['360p']
 
+sphere = (np.array([0,0,0]), 1, 1) # Centre, rayon, couleur
 
-sphere= (np.array([0,0,0]), 1, 1) #centre, rayon, couleur
-sphere2=(np.array([0.2,0,0]), 1.5, 3)
+cam = (np.array([12, 0, 0]), 180, 0) # Vecteur Position, Angles Theta & Phi (coordonnées sphériques)
+sphere_1 = (np.array([1, 0, 4]), 1, 'bleu') # Vecteur Position du centre, rayon, couleur
+sphere_2 = (np.array([0.2, 0, 0]), 1.5, 3)
 
-liste_spheres=[sphere, sphere2]
+liste_spheres = [sphere_1, sphere_2]
 
-couleur_ecran= np.empty((largeur_pixel, hauteur_pixel))
+couleur_ecran = np.empty(resolution)
 
-for i in range (0, largeur_pixel):
-    for j in range(0, hauteur_pixel):
-        couleur_ecran[i][j]= couleur_pt(pos_pt_focal,liste_spheres, [i,j], A, B, C, largeur_pixel, hauteur_pixel)
+for i in range (0, resolution[0]):
+    for j in range(0, resolution[1]):
+        # couleur_ecran[i][j]= couleur_pt(pos_pt_focal,liste_spheres, [i,j], A, B, C, largeur_pixel, hauteur_pixel)
+        pass
 
 
 plt.figure()
