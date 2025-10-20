@@ -2,37 +2,15 @@ import jax
 from jax import jit, vmap, lax
 import jax.numpy as jnp
 import numpy as np
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 
 from module import coordinates, raytracing
-
-def solution_intersection(cam_pos, v, sphere):
-    d = sphere[0] # Position du centre
-    r = sphere[1] # Rayon de la sphère
-
-    a = np.dot(v, v)
-    b = 2 * np.dot(v, cam_pos - d)
-    c = np.dot(cam_pos - d, cam_pos - d) - r*r
-
-    delta = b*b - 4*a*c
-
-    solution = []
-
-    if delta == 0:
-        solution.append(-b/(2*a))
-
-    elif delta > 0: 
-        solution.append((-b + np.sqrt(delta))/(2*a))
-        solution.append((-b - np.sqrt(delta))/(2*a))
-
-    elif delta < 0: 
-        solution = None
-
-    return solution
+from module.raytracing import *
 
 
 def couleur_pt(i, j, cam_pos, corners, liste_spheres):
-    v = coordinates.local_to_global(i, j, corners, resolution)
+    v = coordinates.local_to_global(i, j, corners, resolution) - cam_pos
 
     solutions_spheres = []
     check_sphere = False
@@ -45,6 +23,8 @@ def couleur_pt(i, j, cam_pos, corners, liste_spheres):
     if check_sphere == False:
         return 0
         
+    if min(solutions_spheres) == 65536:
+        return 0
     minimum = solutions_spheres.index(min(solutions_spheres))
     couleur = liste_spheres[minimum][2]
 
@@ -65,10 +45,9 @@ screen_height = 9
 
 cam = (np.array([12, 0, 0]), 4, (180, 0)) # Vecteur Position, Distance Focale, Angles Theta & Phi (coordonnées sphériques)
 corners = coordinates.get_corners(cam, screen_height, screen_width)
-print(corners)
 
-sphere_1 = (np.array([0, 0, 0]), 5, 1) # Vecteur Position du centre, rayon, couleur
-sphere_2 = (np.array([-3, 0, 0]), 2, 3)
+sphere_1 = (np.array([0, 0, 0]), 4, 1) # Vecteur Position du centre, rayon, couleur
+sphere_2 = (np.array([-3, 2, 0]), 6, 3)
 
 liste_spheres = [sphere_1, sphere_2]
 
@@ -80,5 +59,5 @@ for i in range (0, resolution[0]):
 
 
 plt.figure()
-plt.imshow(couleur_ecran, cmap='inferno')
+plt.imshow(couleur_ecran, cmap="inferno")
 plt.show()

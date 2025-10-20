@@ -4,6 +4,15 @@ import jax.numpy as jnp
 import numpy as np
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
+import sys
+
+def plus_petit_positif(liste):
+    temp = 65536
+    for element in liste:
+        if temp > element and element > 0:
+            temp = element
+
+    return temp
 
 def solution_intersection(cam_pos, v, sphere):
     d = sphere[0] # Position du centre
@@ -15,19 +24,12 @@ def solution_intersection(cam_pos, v, sphere):
 
     delta = b*b - 4*a*c
 
-    solution = []
+    solution = 65536
 
     if delta == 0:
         s = -b/(2*a)
-        if s > 0 : solution.append(s)
-
+        if s > 0 : solution = s
     elif delta > 0: 
-        s = -b + np.sqrt(delta)/(2*a)
-        if s > 0 : solution.append(s)
-        s = -b - np.sqrt(delta)/(2*a)
-        if s > 0 : solution.append(s)
-
-    elif delta < 0: 
-        solution = None
+        solution = plus_petit_positif([(-b - np.sqrt(delta))/(2*a), (-b + np.sqrt(delta))/(2*a)])
 
     return solution
