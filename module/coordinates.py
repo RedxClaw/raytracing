@@ -2,7 +2,6 @@ import jax
 from jax import jit, vmap, lax
 import jax.numpy as jnp
 import numpy as np
-import matplotlib.pyplot as plt
 from math import cos, sin, radians
 
 def angle_to_vector(theta, phi):
@@ -11,8 +10,12 @@ def angle_to_vector(theta, phi):
     c_phi = cos(phi)
     return np.array([cos(theta)*c_phi, sin(theta)*c_phi, sin(phi)])
 
-def get_corners(cam, focal_length, screen_height, screen_width):
-    vec1 = angle_to_vector(cam[1], cam[2])
+def get_corners(cam, screen_height, screen_width):
+    focal_length = cam[1]
+    theta = cam[2][0]
+    phi = cam[2][1]
+
+    vec1 = angle_to_vector(theta, phi)
     vec2 = np.array([-vec1[1], vec1[0], 0])
     vec3 = np.cross(vec1, vec2)
 
