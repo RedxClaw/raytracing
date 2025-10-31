@@ -1,0 +1,29 @@
+{
+    "sphere": [
+        {
+            "position": [0, 0, 0],
+            "rayon": 4,
+            "couleur": "bleu",
+            "metalicite": 500
+        },
+        {
+            "position": [-4, -7, -2],
+            "rayon": 6,
+            "couleur": "vert",
+            "metalicite": 0
+        },
+        {
+            "position": [0, 6, 0],
+            "rayon": 2,
+            "couleur": "rouge",
+            "metalicite": 500
+        }
+    ],
+    "lumiere": [
+        {
+            "position": [8, 0, 5],
+            "intensite": 1,
+            "couleur": "blanc"
+        }
+    ]
+}

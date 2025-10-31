@@ -1,11 +1,10 @@
 [project]
-name = "raytracing"
+name = "rt"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "jax>=0.7.2",
-    "matplotlib>=3.10.6",
-    "numpy>=2.3.3",
+    "jax>=0.8.0",
+    "matplotlib>=3.10.7",
 ]
