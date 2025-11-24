@@ -12,7 +12,9 @@ def generation_image(camera, taille_ecran, resolution, liste_sphere, liste_lumie
             alpha, iteration = raytracing.intersection_sphere(x, v, liste_sphere, len(liste_sphere))
 
             if iteration != len(liste_sphere):
-                couleur = liste_sphere[iteration][2]
+                sphere = liste_sphere[iteration]
+                theta_s, phi_s = coordonees.cartesian_to_angle(x + alpha*v, sphere[0])
+                couleur = sphere[2]["motif"](theta_s, phi_s, sphere[2]["couleurs"])
                 intensite = raytracing.calcul_lumiere(camera, x + alpha*v, liste_lumiere, liste_sphere, iteration)
             else:
                 couleur = np.array([0, 0, 0])

@@ -1,12 +1,26 @@
 import json
 import numpy as np
+from module import textures
 
 Couleurs = {
     "noir": [0, 0, 0],
     "rouge": [1, 0, 0],
+    "orange": [1, 0.5, 0],
+    "jaune": [1, 1, 0],
     "vert": [0, 1, 0],
     "bleu": [0, 0, 1],
+    "magenta": [1, 0, 1],
+    "rose": [1, 0, 0.5],
+    "lime": [0.5, 1, 0],
+    "turquoise": [0, 1, 0.5],
+    "mauve": [0.5, 0, 1],
     "blanc": [1, 1, 1]
+}
+
+Textures = {
+    "damier" : textures.damier,
+    "spirale": textures.spirale,
+    "unicolore": textures.unicolore
 }
 
 def get_settings(resolution):
@@ -35,6 +49,11 @@ def setup_ecran(resolution):
     
     return ecran
 
+def get_color(couleur):
+    if type(couleur) == str:
+        return np.array([Couleurs[couleur]])
+    return couleur
+
 def get_objects():
     with open('module\\json\\objects.json', 'r') as file:
         data = json.load(file)
@@ -48,13 +67,13 @@ def get_objects():
             for dico in liste_objet:
                 sphere_pos = np.array(dico["position"])
                 sphere_rayon = dico["rayon"]
-                if type(dico["couleur"]) == str:
-                    sphere_couleur = np.array(Couleurs[dico["couleur"]])
-                else:
-                    sphere_couleur = np.array(dico["couleur"])
-                sphere_metalicite = dico["metalicite"]
 
-                liste_sphere.append((sphere_pos, sphere_rayon, sphere_couleur, sphere_metalicite))
+                sphere_metalicite = dico["metalicite"]
+                sphere_texture = {"motif": Textures[dico["texture"]["motif"]], "couleurs": []}
+                for couleur in dico["texture"]["couleurs"]:
+                    sphere_texture["couleurs"].append(get_color(couleur))
+
+                liste_sphere.append((sphere_pos, sphere_rayon, sphere_texture, sphere_metalicite))
 
         elif categorie == "lumiere":
             for dico in liste_objet:
@@ -67,6 +86,11 @@ def get_objects():
 
                 liste_lumiere.append((lumiere_pos, lumiere_intensite, lumiere_couleur))
                 
-    return liste_sphere, liste_lumiere
+    return liste_sphere, liste_lumiere     
 
-                    
+
+def taille_pixel(resolution):
+    hauteur_pix = 9/resolution[0]
+    largeur_pix = 16/resolution[1]
+
+    return hauteur_pix, largeur_pix

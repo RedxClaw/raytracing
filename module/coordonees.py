@@ -1,5 +1,5 @@
 import numpy as np
-from math import cos, sin, radians
+from math import cos, acos, sin, radians, degrees
 
 def angle_to_cartesian(theta, phi):
     theta = radians(theta)
@@ -7,6 +7,19 @@ def angle_to_cartesian(theta, phi):
 
     c_phi = cos(phi)
     return np.array([c_phi*cos(theta), c_phi*sin(theta), sin(phi)])
+
+def cartesian_to_angle(p, sphere_c):
+    p = p - sphere_c
+
+    x = p[0]
+    y = p[1]
+    z = p[2]
+
+    theta_s = acos(z/np.linalg.norm(p))
+    phi_s = np.sign(y)*acos(x/np.linalg.norm(np.array([x, y])))
+
+    return (degrees(theta_s), degrees(phi_s))
+
 
 def get_corners(camera, taille_ecran):
     largeur = taille_ecran[0]

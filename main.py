@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 
-from module import setup, engine
+from module import setup, engine, interface
+
+root = interface.init_fenetre()
+root.mainloop()
 
 camera, resolution, taille_ecran = setup.get_settings("360p")
 liste_sphere, liste_lumiere = setup.get_objects()

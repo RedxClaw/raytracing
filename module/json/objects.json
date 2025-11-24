@@ -3,19 +3,36 @@
         {
             "position": [0, 0, 0],
             "rayon": 4,
-            "couleur": "bleu",
+            "texture": {
+                "motif": "spirale",
+                "couleurs": [
+                    "orange",
+                    "bleu"
+                ]
+            },
             "metalicite": 500
         },
         {
             "position": [-4, -7, -2],
             "rayon": 6,
-            "couleur": "vert",
+            "texture": {
+                "motif": "unicolore",
+                "couleurs": [
+                    "vert"
+                ]
+            },
             "metalicite": 0
         },
         {
             "position": [0, 6, 0],
             "rayon": 2,
-            "couleur": "rouge",
+            "texture": {
+                "motif": "damier",
+                "couleurs": [
+                    "rose",
+                    "blanc"
+                ]
+            },
             "metalicite": 500
         }
     ],
