@@ -1,9 +1,20 @@
+import json
 import numpy as np
+from math import fmod
+
+import jax
+from jax import jit, vmap, lax
+import jax.numpy as jnp
+from functools import partia
+
+from module import coordonees
 
 def min_positif(a, b):
     if a > b and b > 0:
         return b
     return a
+
+
 
 def intersection_sphere(x, v, liste_sphere, ignore_iteration):
     iteration = len(liste_sphere)
@@ -33,25 +44,28 @@ def intersection_sphere(x, v, liste_sphere, ignore_iteration):
             alpha = min_positif(min_positif(alpha, s1), min_positif(alpha, s2))
         
     if alpha == 65535:
-        alpha = 0    
+        alpha = 0 
         iteration = len(liste_sphere)
-        
     return alpha, iteration
             
-def vecteurs_lumiere(camera, p, lumiere, sphere):
-    n = p - sphere[0]
-    vl = lumiere[0] - p
-    vc = camera[0] - p
-    vr = 2*np.dot(vl, n)*n - vl
+def vecteurs_lumiere(pos_camera, p, pos_lumiere, pos_sphere):
 
-    n = n/np.linalg.norm(n)
-    vl = vl/np.linalg.norm(vl)
-    vc = vc/np.linalg.norm(vc)
-    vr = vr/np.linalg.norm(vr)
+    n0 = p - pos_sphere 
+    vl0 = pos_lumiere - p 
+    vc0 = pos_camera - p  
+    vr0 = 2*np.dot(vl0, n0)*n0 - vl0
+        
+    if np.dot(n0, n0)==0 or np.dot(vl0, vl0)==0 or np.dot(vc0, vc0)==0 or np.dot(vr0, vr0)==0:
+        return 0
+    
+    vl = vl0/np.linalg.norm(vl0)
+    n = n0/np.linalg.norm(n0)
+    vc = vc0/np.linalg.norm(vc0)
+    vr = vr0/np.linalg.norm(vr0)
 
     return n, vl, vc, vr
 
-def calcul_lumiere(camera, p, liste_lumiere, liste_sphere, iteration_sphere):
+def calcul_lumiere(camera, p, liste_lumiere, liste_sphere, iteration_sphere, alpha):
     sphere = liste_sphere[iteration_sphere]
     k_a = 0.4
     k_d = 0.5
@@ -61,7 +75,7 @@ def calcul_lumiere(camera, p, liste_lumiere, liste_sphere, iteration_sphere):
     intensite_total = np.zeros(3)
     for lumiere in liste_lumiere:
         intensite = 40*lumiere[1]/np.dot(p - lumiere[0], p - lumiere[0])
-        n, vl, vc, vr = vecteurs_lumiere(camera, p, lumiere, sphere)
+        n, vl, vc, vr = vecteurs_lumiere(camera[0], p, lumiere[0], sphere[0])
 
         alpha, iteration = intersection_sphere(p, lumiere[0] - p, liste_sphere, iteration_sphere)
 
@@ -76,4 +90,18 @@ def calcul_lumiere(camera, p, liste_lumiere, liste_sphere, iteration_sphere):
         if intensite_total[i] > 1: intensite_total[i] = 1
     
     return intensite_total
-        
+
+def moyenne_lumiere(camera, liste_lumiere, liste_sphere, iteration_sphere, resolution, pos_pixel_x, pos_pixel_y, alpha, corners): 
+    hauteur_pixel, largeur_pixel = coordonees.taille_pixel(resolution) 
+    e_x= np.random.uniform (-largeur_pixel/2, largeur_pixel/2, 20)
+    e_y = np.random.uniform (-hauteur_pixel/2, hauteur_pixel/2, 20) 
+    lum=0
+
+    for i in range(0,20):
+        e = coordonees.local_to_global(pos_pixel_x + e_x[i] , pos_pixel_y + e_y[i], corners, resolution)
+        v= e-camera[0]
+
+        lum=lum+calcul_lumiere(camera, e + alpha*v, liste_lumiere, liste_sphere, iteration_sphere, alpha) 
+
+    lum=lum/20
+    return lum

@@ -1,5 +1,5 @@
 import numpy as np
-from math import cos, acos, sin, radians, degrees
+from math import cos, sin, radians, acos, asin, degrees
 
 def angle_to_cartesian(theta, phi):
     theta = radians(theta)
@@ -46,3 +46,10 @@ def local_to_global(i, j, corners, resolution):
     x = (1 - t1 - t2) * corners[0] + t1*corners[2] + t2*corners[1]
 
     return x
+
+
+def taille_pixel(resolution): 
+    hauteur_pix = 9/resolution[0]
+    largeur_pix = 16/resolution[1]
+
+    return hauteur_pix, largeur_pix

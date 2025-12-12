@@ -5,12 +5,12 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 
-from module import coordinates, raytracing
+from module import coordonnees, raytracing
 from module.raytracing import *
 
 
 def couleur_pt(i, j, cam_pos, corners, liste_spheres):
-    v = coordinates.local_to_global(i, j, corners, resolution) - cam_pos
+    v = coordonnees.local_to_global(i, j, corners, resolution) - cam_pos
 
     solutions_spheres = []
     check_sphere = False
@@ -39,7 +39,7 @@ screen_width = 16
 screen_height = 9
 
 cam = (np.array([12, 0, 0]), 4, (180, 0)) # Vecteur Position, Distance Focale, Angles Theta & Phi (coordonnées sphériques)
-corners = coordinates.get_corners(cam, screen_height, screen_width)
+corners = coordonnees.get_corners(cam, screen_height, screen_width)
 
 sphere_1 = (np.array([0, 0, 0]), 4, 1) # Vecteur Position du centre, rayon, couleur
 sphere_2 = (np.array([-3, 2, 0]), 6, 2)
