@@ -1,0 +1,145 @@
+import json
+import numpy as np
+from math import fmod
+
+import jax
+from jax import jit, vmap, lax
+import jax.numpy as jnp
+from functools import partial
+
+Couleurs = {
+    "noir": jnp.array([0.0, 0.0, 0.0]),
+    "rouge": jnp.array([1.0, 0.0, 0.0]),
+    "vert": jnp.array([0.0, 1.0, 0.0]),
+    "bleu": jnp.array([0.0, 0.0, 1.0]),
+    "blanc": jnp.array([1.0, 1.0, 1.0])
+}
+
+
+'''def damier (theta_s, phi_s, couleur):
+
+    if 0<=fmod(abs(theta_s), 36) <=4 :
+        if 4<=fmod(abs(phi_s),36) <=9 :
+            couleur = couleur/2
+    else :
+        if 0<=fmod(abs(phi_s), 36)<= 4 :
+            couleur = couleur/2.0          
+    return couleur
+'''
+
+def damier_true_1(x):
+    return lax.cond(
+        jnp.logical_and(4<=jnp.mod(abs(x[0]),36), jnp.mod(abs(x[0]), 36)<=9),
+        lambda v : jnp.array([v[1]/2,v[2]/2, v[3]/2]) ,
+        lambda v: jnp.array([v[1], v[2], v[3]]), 
+        x)
+    
+
+def damier_false_1(x):
+    return lax.cond(
+        jnp.logical_and(0<=jnp.mod(abs(x[0]), 36), jnp.mod(abs(x[0]),36)<= 4) , 
+        lambda v:jnp.array([v[1]/2,v[2]/2, v[3]/2]), 
+        lambda v: jnp.array([v[1], v[2], v[3]]), 
+        x)
+
+def damier(theta_s, phi_s, couleur):
+    return lax.cond(
+        jnp.logical_and(0<=jnp.mod(abs(theta_s), 36), jnp.mod(abs(theta_s), 36) <=4), 
+        damier_true_1, 
+        damier_false_1, 
+        jnp.array([phi_s ,couleur[0], couleur[1], couleur[2]]))
+ 
+
+'''def spirale(theta_s, phi_s, couleur):
+    if 0<fmod(abs(theta_s+phi_s), 20)<=10:
+        couleur=np.array([1, 1, 1])
+    return couleur'''
+
+
+def spirale(theta_s, phi_s, couleur):
+    spirale_true= lambda v: jnp.array([1.0, 1.0, 1.0], float)
+    spirale_false = lambda v: jnp.array([v[0], v[1], v[2]], float)
+
+    return lax.cond(
+        jnp.logical_and(0<jnp.mod(abs(theta_s+phi_s), 20) , jnp.mod(abs(theta_s+phi_s), 20)<=10),
+        spirale_true, 
+        spirale_false,
+        couleur)
+
+
+def get_settings(resolution):
+    with open('module\\json\\settings.json', 'r') as file:
+        data_settings = json.load(file)
+        
+    cam_pos = np.array(data_settings["camera"]["position"])
+    cam_focal = data_settings["camera"]["distance_focale"]
+    cam_angles = (data_settings["camera"]["angles"][0], data_settings["camera"]["angles"][1])
+
+    camera = (cam_pos, cam_focal, cam_angles)
+
+    resolution = data_settings["resolution"][resolution]
+
+    taille_ecran = (data_settings["ecran"]["largeur"], data_settings["ecran"]["hauteur"])
+
+    return camera, resolution, taille_ecran
+
+
+def def_ecran(x):
+    j=x[1]
+    x[3].at[x[0],x[1],0].set(x[0])
+    x[3].at[x[0],x[1],1].set(x[1])
+    j=j+1
+    return [x[0], j, x[2], x[3]]
+
+
+def body(x):
+    i=x[0]
+    cond = lambda v: v[1]<(v[2])[1]
+    i=i+1
+    return lax.while_loop(cond, def_ecran,[i, x[1], x[2], x[3]])
+
+def setup_ecran(resolution):
+    ecran = np.zeros([resolution[0], resolution[1], 5])
+    init_value_1=0
+    init_value_2=0
+
+    cond= lambda x: x[0]<x[2][1]
+
+    return lax.while_loop(cond, body , [init_value_1, init_value_2,  resolution, ecran])[3]
+
+
+
+def get_objects():
+    with open('module\\json\\objects.json', 'r') as file:
+        data = json.load(file)
+
+    liste_sphere = []
+    liste_lumiere = []
+
+    for categorie in data:
+        liste_objet = data[categorie]
+        if categorie == "sphere":
+            for dico in liste_objet:
+                sphere_pos = np.array(dico["position"])
+                sphere_rayon = dico["rayon"]
+                if type(dico["couleur"]) == str:
+                    sphere_couleur = np.array(Couleurs[dico["couleur"]])
+                else:
+                    sphere_couleur = np.array(dico["couleur"])
+                sphere_metalicite = dico["metalicite"]
+
+                liste_sphere.append((sphere_pos, sphere_rayon, sphere_couleur, sphere_metalicite))
+
+        elif categorie == "lumiere":
+            for dico in liste_objet:
+                lumiere_pos = np.array(dico["position"])
+                lumiere_intensite = dico["intensite"]
+                if type(dico["couleur"]) == str:
+                    lumiere_couleur = np.array(Couleurs[dico["couleur"]])
+                else:
+                    lumiere_couleur = np.array(dico["couleur"])
+
+                liste_lumiere.append((lumiere_pos, lumiere_intensite, lumiere_couleur))
+                
+    return liste_sphere, liste_lumiere     
+

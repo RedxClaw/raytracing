@@ -5,23 +5,18 @@ import numpy as np
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 
-from module import coordinates, raytracing
+from module import coordonnees, raytracing
 from module.raytracing import *
 
 
 def couleur_pt(i, j, cam_pos, corners, liste_spheres):
-    v = coordinates.local_to_global(i, j, corners, resolution) - cam_pos
+    v = coordonnees.local_to_global(i, j, corners, resolution) - cam_pos
 
     solutions_spheres = []
     check_sphere = False
 
     for sphere in liste_spheres:
-        if solution_intersection(cam_pos, v, sphere) != None:
-            solutions_spheres.append(solution_intersection(cam_pos, v, sphere))
-            check_sphere = True
-    
-    if check_sphere == False:
-        return 0
+        solutions_spheres.append(solution_intersection(cam_pos, v, sphere))
         
     if min(solutions_spheres) == 65536:
         return 0
@@ -38,26 +33,26 @@ resolution_dico = {
     '1080': (1080, 1920)
 }
 
-resolution = resolution_dico['144p']
+resolution = resolution_dico['360p']
 
 screen_width = 16
 screen_height = 9
 
 cam = (np.array([12, 0, 0]), 4, (180, 0)) # Vecteur Position, Distance Focale, Angles Theta & Phi (coordonnées sphériques)
-corners = coordinates.get_corners(cam, screen_height, screen_width)
+corners = coordonnees.get_corners(cam, screen_height, screen_width)
 
 sphere_1 = (np.array([0, 0, 0]), 4, 1) # Vecteur Position du centre, rayon, couleur
-sphere_2 = (np.array([-3, 2, 0]), 6, 3)
+sphere_2 = (np.array([-3, 2, 0]), 6, 2)
 
 liste_spheres = [sphere_1, sphere_2]
 
 couleur_ecran = np.zeros(resolution)
+couleur_liste = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]]
 
 for i in range (0, resolution[0]):
     for j in range(0, resolution[1]):
         couleur_ecran[i][j] = couleur_pt(i, j, cam[0], corners, liste_spheres)
 
-
 plt.figure()
-plt.imshow(couleur_ecran, cmap="inferno")
+plt.imshow(couleur_ecran)
 plt.show()
