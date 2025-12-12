@@ -1,8 +1,8 @@
 {
     "camera": {
-        "position": [12, 0, 7],
+        "position": [12, 0, 0],
         "distance_focale": 4,
-        "angles": [180, -30]
+        "angles": [180, 0]
     },
     "resolution": {
         "144p": [144, 256],

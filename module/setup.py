@@ -1,71 +1,27 @@
 import json
 import numpy as np
-from math import fmod
-
-import jax
-from jax import jit, vmap, lax
-import jax.numpy as jnp
-from functools import partial
+from module import textures
 
 Couleurs = {
-    "noir": jnp.array([0.0, 0.0, 0.0]),
-    "rouge": jnp.array([1.0, 0.0, 0.0]),
-    "vert": jnp.array([0.0, 1.0, 0.0]),
-    "bleu": jnp.array([0.0, 0.0, 1.0]),
-    "blanc": jnp.array([1.0, 1.0, 1.0])
+    "noir": [0, 0, 0],
+    "rouge": [1, 0, 0],
+    "orange": [1, 0.5, 0],
+    "jaune": [1, 1, 0],
+    "vert": [0, 1, 0],
+    "bleu": [0, 0, 1],
+    "magenta": [1, 0, 1],
+    "rose": [1, 0, 0.5],
+    "lime": [0.5, 1, 0],
+    "turquoise": [0, 1, 0.5],
+    "mauve": [0.5, 0, 1],
+    "blanc": [1, 1, 1]
 }
 
-
-'''def damier (theta_s, phi_s, couleur):
-
-    if 0<=fmod(abs(theta_s), 36) <=4 :
-        if 4<=fmod(abs(phi_s),36) <=9 :
-            couleur = couleur/2
-    else :
-        if 0<=fmod(abs(phi_s), 36)<= 4 :
-            couleur = couleur/2.0          
-    return couleur
-'''
-
-def damier_true_1(x):
-    return lax.cond(
-        jnp.logical_and(4<=jnp.mod(abs(x[0]),36), jnp.mod(abs(x[0]), 36)<=9),
-        lambda v : jnp.array([v[1]/2,v[2]/2, v[3]/2]) ,
-        lambda v: jnp.array([v[1], v[2], v[3]]), 
-        x)
-    
-
-def damier_false_1(x):
-    return lax.cond(
-        jnp.logical_and(0<=jnp.mod(abs(x[0]), 36), jnp.mod(abs(x[0]),36)<= 4) , 
-        lambda v:jnp.array([v[1]/2,v[2]/2, v[3]/2]), 
-        lambda v: jnp.array([v[1], v[2], v[3]]), 
-        x)
-
-def damier(theta_s, phi_s, couleur):
-    return lax.cond(
-        jnp.logical_and(0<=jnp.mod(abs(theta_s), 36), jnp.mod(abs(theta_s), 36) <=4), 
-        damier_true_1, 
-        damier_false_1, 
-        jnp.array([phi_s ,couleur[0], couleur[1], couleur[2]]))
- 
-
-'''def spirale(theta_s, phi_s, couleur):
-    if 0<fmod(abs(theta_s+phi_s), 20)<=10:
-        couleur=np.array([1, 1, 1])
-    return couleur'''
-
-
-def spirale(theta_s, phi_s, couleur):
-    spirale_true= lambda v: jnp.array([1.0, 1.0, 1.0], float)
-    spirale_false = lambda v: jnp.array([v[0], v[1], v[2]], float)
-
-    return lax.cond(
-        jnp.logical_and(0<jnp.mod(abs(theta_s+phi_s), 20) , jnp.mod(abs(theta_s+phi_s), 20)<=10),
-        spirale_true, 
-        spirale_false,
-        couleur)
-
+Textures = {
+    "damier" : textures.damier,
+    "spirale": textures.spirale,
+    "unicolore": textures.unicolore
+}
 
 def get_settings(resolution):
     with open('module\\json\\settings.json', 'r') as file:
