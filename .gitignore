@@ -13,5 +13,4 @@ wheels/
 # Miscellanous
 module.zip
 test*
-frames/
-video/
+media/
