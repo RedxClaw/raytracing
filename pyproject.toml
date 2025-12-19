@@ -1,11 +1,12 @@
 [project]
-name = "raytracing"
+name = "Raytracing"
 version = "0.1.0"
-description = "Add your description here"
+description = "Projet de raytracing dans le cadre du cours de SMATM110 Travaux Pratiques de Programmation de l'université de Namur"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "jax>=0.7.2",
-    "matplotlib>=3.10.6",
-    "numpy>=2.3.3",
+    "hypothesis>=6.145.0",
+    "imageio[ffmpeg,pyav]>=2.37.2",
+    "jax>=0.8.0",
+    "matplotlib>=3.10.7",
 ]

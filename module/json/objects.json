@@ -1,0 +1,33 @@
+{
+    "sphere": [
+        {
+            "position": [0, 0, 0],
+            "rayon": 4,
+            "texture": {
+                "motif": "unicolore",
+                "couleurs": [
+                    "blanc",
+                    "bleu"
+                ]
+            },
+            "metallicite": 0
+        }
+    ],
+    "lumiere": [
+        {
+            "position": [12, -3, 6],
+            "intensite": 2,
+            "couleur": "jaune"
+        },
+        {
+            "position": [3, 12, 6],
+            "intensite": 1.5,
+            "couleur": "cyan"
+        },
+        {
+            "position": [-12, 3, 6],
+            "intensite": 2,
+            "couleur": "magenta"
+        }
+    ]
+}
