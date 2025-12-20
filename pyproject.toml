@@ -1,5 +1,5 @@
 [project]
-name = "Raytracing"
+name = "RaytracX"
 version = "0.1.0"
 description = "Projet de raytracing dans le cadre du cours de SMATM110 Travaux Pratiques de Programmation de l'université de Namur"
 readme = "README.md"

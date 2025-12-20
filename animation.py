@@ -10,15 +10,15 @@ from module import setup, engine
 FICHIER_PARAMETRES          = "./module/json/settings.json"
 FICHIER_OBJETS              = "./module/json/objets_1.json"
 
-HAUTEUR_RESOLUTION          = 1080
+HAUTEUR_RESOLUTION          = 720
 N_ECHANTILLON_STOCHASTIQUE  = 1
 
 # Paramètres spécifiques à l'animation
-FPS         = 20
+FPS         = 24
 SECONDES    = 5
-N_TOURS     = 1
-N_FRAMES    = round(FPS*SECONDES/N_TOURS)
-FORMAT      = ".webp"
+N_TOURS     = 2.5
+N_FRAMES    = round(FPS*SECONDES)
+FORMAT      = ".mp4"
 
 if not path.isdir('media'):
     mkdir('media')
@@ -29,15 +29,13 @@ if path.isdir('media/frames'):
 mkdir('media/video')
 mkdir('media/frames')
 
-delta_degree = N_TOURS*360/N_FRAMES
+delta_degree = N_TOURS*360.0/N_FRAMES
 theta = jnp.radians(delta_degree)
 c, s = jnp.cos(theta), jnp.sin(theta)
 R = jnp.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
 
 camera, resolution, taille_ecran, coefficients_lumiere = setup.get_settings(FICHIER_PARAMETRES, HAUTEUR_RESOLUTION)
 liste_sphere, liste_lumiere = setup.get_objects(FICHIER_OBJETS)
-
-liste_index = jnp.arange(0, N_FRAMES)
 
 for i in range(0, N_FRAMES): 
     camera['position'] = jnp.dot(R, camera['position'])

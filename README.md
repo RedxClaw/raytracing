@@ -24,7 +24,7 @@ Pour initialiser le projet, utilisez le package manager [<u>uv</u>](https://docs
 Il peut être installer via la commande :
 
 ```bash
-pip install uv
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ### Téléchargement des dépendances
