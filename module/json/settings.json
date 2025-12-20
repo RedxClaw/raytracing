@@ -1,12 +1,13 @@
 {
+    
+    "ecran": {
+        "largeur": 16,
+        "hauteur": 9
+    },
     "camera": {
         "position": [12, 0, 0],
         "distance_focale": 4,
         "angles": [180, 0]
-    },
-    "ecran": {
-        "largeur": 16,
-        "hauteur": 9
     },
     "diffusion_lumiere": {
         "ambiante": 0.4,

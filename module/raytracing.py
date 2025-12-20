@@ -44,10 +44,8 @@ def vecteurs_lumiere(cam_pos, p, lumiere, sphere_pos):
     return n, vl, vc, vr
 
 """Calcul la contribution d'une lumière pour un seul pixel de l'écran"""
-def calcul_lumiere_jax(cam_pos, p, lumiere, liste_sphere, indice_sphere):
-    k_a = 0.4
-    k_d = 0.5
-    k_s = 0.6
+def calcul_lumiere_jax(cam_pos, p, lumiere, coeff_lumiere, liste_sphere, indice_sphere):
+    k_a, k_d, k_s = coeff_lumiere
 
     lumiere_pos = lumiere["position"]
     beta = liste_sphere["metallicite"][indice_sphere]
@@ -74,15 +72,16 @@ def calcul_lumiere_jax(cam_pos, p, lumiere, liste_sphere, indice_sphere):
 # INPUT :
 * `cam_pos`         Position du point focal
 * `p`               Position du point d'intersection sur la sphère
-* `liste_sphere`    Liste des sphères présentes dans la scène
 * `liste_lumiere`   Liste des lumières présentes dans la scène
+* `coeff_lumiere`   Liste des coefficients du comportement général de la lumière
+* `liste_sphere`    Liste des sphères présentes dans la scène
 * `indice_sphere`   Sphere sur laquelle le point p se situe
 
 # OUTPUT :
 * `lumiere`         Somme de l'ensemble des contributions des lumières pour la couleur et la luminosité du point p
 """
-def calcul_lumiere_vmap(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere):
-    f = vmap(calcul_lumiere_jax, in_axes=(None, None, 0, None, None))
-    liste_intensite = f(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere)
+def calcul_lumiere_vmap(cam_pos, p, liste_lumiere, coeff_lumiere, liste_sphere, indice_sphere):
+    f = vmap(calcul_lumiere_jax, in_axes=(None, None, 0, None, None, None))
+    liste_intensite = f(cam_pos, p, liste_lumiere, coeff_lumiere, liste_sphere, indice_sphere)
     lumiere = jnp.sum(liste_intensite, axis=0)
     return jnp.where(lumiere < 1, lumiere, 1)

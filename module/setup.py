@@ -48,8 +48,8 @@ Extrait, depusi un fichier JSON, l'ensemble des données générales nécessaire
 * `resolution`      Paire d'entiers positifs donnant la résolution de l'écran simulé
 * `taille_ecran`    Paire de réels qui donne la taille de l'écran simulé
 """
-def get_settings(hauteur_resolution):
-    with open('module\\json\\settings.json', 'r') as file:
+def get_settings(fichier_parametres, hauteur_resolution):
+    with open(fichier_parametres, 'r') as file:
         data_settings = json.load(file)
         
     cam_pos = jnp.array(data_settings["camera"]["position"])
@@ -70,12 +70,14 @@ def get_settings(hauteur_resolution):
     else:
         print("""Erreur : La résolution choisie n'est pas valide. Veuillez choisir un entier positif qui correspondra au nombre de pixels de la hauteur de l'écran. \n""")
         exit(1)
+    
+    coefficients_lumiere = list(data_settings['diffusion_lumiere'].values())
 
-    return camera, resolution, taille_ecran
+    return camera, resolution, taille_ecran, coefficients_lumiere
 
 """Extrait depuis un fichier JSON l'ensemble des données des objets de la scène"""
-def get_objects():
-    with open('module\\json\\objects.json', 'r') as file:
+def get_objects(fichier_objets):
+    with open(fichier_objets, 'r') as file:
         data = json.load(file)
 
     Dictionnaire_Sphere = {
