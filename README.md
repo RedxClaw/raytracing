@@ -10,6 +10,13 @@ Ce projet permet à l'utilisateur d'effectuer rapidement un rendu graphique simp
 
 L'initialisation du projet qui suit se fait sur Windows
 
+### Clone du projet
+
+Dans un premier temps, cloner le projet via :
+```git
+git clone https://github.com/RedxClaw/raytracing
+```
+
 ### Installation de uv
 
 Pour initialiser le projet, utilisez le package manager [<u>uv</u>](https://docs.astral.sh/uv/getting-started/installation/) afin de gérer les dépendances requises pour le bon fonctionnement du projet.

@@ -20,17 +20,19 @@ N_TOURS     = 1
 N_FRAMES    = round(FPS*SECONDES/N_TOURS)
 FORMAT      = ".webp"
 
-delta_degree = N_TOURS*360/N_FRAMES
-theta = jnp.radians(delta_degree)
-c, s = jnp.cos(theta), jnp.sin(theta)
-R = jnp.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
-
+if not path.isdir('media'):
+    mkdir('media')
 if path.isdir('media/video'):
     rmtree('media/video')
 if path.isdir('media/frames'):
     rmtree('media/frames')
 mkdir('media/video')
 mkdir('media/frames')
+
+delta_degree = N_TOURS*360/N_FRAMES
+theta = jnp.radians(delta_degree)
+c, s = jnp.cos(theta), jnp.sin(theta)
+R = jnp.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
 
 camera, resolution, taille_ecran, coefficients_lumiere = setup.get_settings(FICHIER_PARAMETRES, HAUTEUR_RESOLUTION)
 liste_sphere, liste_lumiere = setup.get_objects(FICHIER_OBJETS)

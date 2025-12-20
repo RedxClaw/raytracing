@@ -10,6 +10,8 @@ FICHIER_OBJETS      = "./module/json/objets_1.json"
 HAUTEUR_RESOLUTION = 1080
 N_ECHANTILLON_STOCHASTIQUE = 20
 
+if not path.isdir('media'):
+    mkdir('media')
 if path.isdir('media/images'):
     rmtree('media/images')
 mkdir('media/images')
