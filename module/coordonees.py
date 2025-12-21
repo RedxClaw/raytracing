@@ -9,17 +9,18 @@ Passe des coordonnées sphériques aux coordonnées cartésiennes
 # INPUT :
 * `theta`   L'angle du plan OXY
 * `phi`     L'angle vertical
+* `r`       Le rayon du vecteur
 
 # OUTPUT :
-* `vec`     Vecteur de norme 1
+* `vec`     Vecteur de norme r
 """
-def sphe2cart(theta, phi):
+def sphe2cart(theta, phi, r = 1):
     theta = radians(theta)
     phi = radians(phi)
 
     c_phi = cos(phi)
     vec = jnp.array([c_phi*cos(theta), c_phi*sin(theta), sin(phi)])
-    return vec
+    return r*vec
 
 """
     cart2sphe(point, sphere_centre)
@@ -31,19 +32,20 @@ Calcul les coordonées sphériques d'un point par rapport au centre d'une sphèr
 * `sphere_centre`   Vecteur position de dimension 3 qui pointe vers le centre de la sphère
 
 # OUTPUT :
-* Une paire d'angles (`theta`, `phi`)
+* Une vecteur composé de deux angles et de la norme du vecteur : (`theta`, `phi`, `r`)
 """
-def cart2sphe(point, sphere_center):
+def cart2sphe(point, sphere_center = jnp.array([0, 0, 0])):
     vec = point - sphere_center
 
     x = vec[0]
     y = vec[1]
     z = vec[2]
 
-    theta_s = jnp.rad2deg(jnp.acos(z/jnp.linalg.norm(vec)))
+    r = jnp.linalg.norm(vec)
+    theta_s = jnp.rad2deg(jnp.acos(z/r))
     phi_s = jnp.rad2deg(jnp.sign(y)*jnp.acos(x/jnp.linalg.norm(jnp.array([x, y]))))
 
-    return jnp.array([theta_s, phi_s])
+    return jnp.array([theta_s, phi_s, r])
 
 """
     get_corners(camera, taille_ecran)

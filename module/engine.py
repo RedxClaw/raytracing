@@ -28,7 +28,7 @@ def couleur_point(ij, echantillon_x, echantillon_y, corners, resolution, cam_pos
     alpha = liste_alpha[iteration]
 
     p = cam_pos + alpha*v
-    theta_s, phi_s = coordonees.cart2sphe(p, liste_sphere['position'][iteration])
+    theta_s, phi_s, r = coordonees.cart2sphe(p, liste_sphere['position'][iteration])
 
     couleur_sphere = lax.switch(liste_sphere['motif'][iteration], setup.liste_ft_textures, theta_s, phi_s, liste_sphere['couleurs'][iteration])
 
