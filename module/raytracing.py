@@ -67,7 +67,7 @@ def calcul_lumiere_jax(cam_pos, p, lumiere, coeff_lumiere, liste_sphere, indice_
     return quantite_lumiere_point*lumiere['couleur']
 
 """
-    calcul_lumiere_vmap(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere)
+    calcul_lumiere_vmap(cam_pos, p, liste_lumiere, coeff_lumiere, liste_sphere, indice_sphere)
 
 # INPUT :
 * `cam_pos`         Position du point focal
