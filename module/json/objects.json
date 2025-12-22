@@ -3,27 +3,31 @@
         {
             "position": [0, 0, 0],
             "rayon": 4,
-            "couleur": [1, 0, 1],
-            "metalicite": 500
-        },
-        {
-            "position": [-4, -7, -2],
-            "rayon": 6,
-            "couleur": "vert",
-            "metalicite": 0
-        },
-        {
-            "position": [0, 6, 0],
-            "rayon": 2,
-            "couleur": "rouge",
-            "metalicite": 500
+            "texture": {
+                "motif": "unicolore",
+                "couleurs": [
+                    "blanc",
+                    "bleu"
+                ]
+            },
+            "metallicite": 0
         }
     ],
     "lumiere": [
         {
-            "position": [8, 0, 5],
-            "intensite": 1,
-            "couleur": "blanc"
+            "position": [12, -3, 6],
+            "intensite": 2,
+            "couleur": "jaune"
+        },
+        {
+            "position": [3, 12, 6],
+            "intensite": 1.5,
+            "couleur": "cyan"
+        },
+        {
+            "position": [-12, 3, 6],
+            "intensite": 2,
+            "couleur": "magenta"
         }
     ]
 }

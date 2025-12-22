@@ -1,107 +1,88 @@
-import json
-import numpy as np
-from math import fmod
-
-import jax
-from jax import jit, vmap, lax
 import jax.numpy as jnp
-from functools import partia
+from jax import lax, vmap
+import numpy as np
 
-from module import coordonees
+def plus_petite_racine_positive(x):
+    a, b, delta = x
 
-def min_positif(a, b):
-    if a > b and b > 0:
-        return b
-    return a
+    solutions = jnp.array([(-b + jnp.sqrt(delta))/(2*a), (-b - jnp.sqrt(delta))/(2*a)], dtype='float32')
 
+    solutions = jnp.where(solutions > 0, solutions, jnp.nan)
+    return jnp.sort(solutions)[0]
 
+def intersection_sphere_jax(x, v, sphere):
+    d = sphere["position"]
+    r = sphere["rayon"]
 
-def intersection_sphere(x, v, liste_sphere, ignore_iteration):
-    iteration = len(liste_sphere)
-    alpha = 65535
-    for i in range(iteration):
-        if (i == ignore_iteration):
-            continue
-        sphere = liste_sphere[i]
-        d = sphere[0] #Position de la sphere
-        r = sphere[1] #Rayon
+    a = jnp.dot(v, v)
+    b = 2*jnp.dot(v, x-d)
+    c = jnp.dot(x-d,x-d) - r*r
 
-        a = np.dot(v, v)
-        b = 2*np.dot(v, x-d)
-        c = np.dot(x - d, x - d) - r*r
-        
-        delta = b*b - 4*a*c
-
-        if delta == 0:
-            if alpha != min_positif(alpha, -b/(2*a)):
-                iteration = i
-            alpha = min_positif(alpha, -b/(2*a))
-        elif delta > 0:
-            s1 = (-b - np.sqrt(delta))/(2*a)
-            s2 = (-b + np.sqrt(delta))/(2*a)
-            if alpha != min_positif(min_positif(alpha, s1), min_positif(alpha, s2)):
-                iteration = i
-            alpha = min_positif(min_positif(alpha, s1), min_positif(alpha, s2))
-        
-    if alpha == 65535:
-        alpha = 0 
-        iteration = len(liste_sphere)
-    return alpha, iteration
-            
-def vecteurs_lumiere(pos_camera, p, pos_lumiere, pos_sphere):
-
-    n0 = p - pos_sphere 
-    vl0 = pos_lumiere - p 
-    vc0 = pos_camera - p  
-    vr0 = 2*np.dot(vl0, n0)*n0 - vl0
-        
-    if np.dot(n0, n0)==0 or np.dot(vl0, vl0)==0 or np.dot(vc0, vc0)==0 or np.dot(vr0, vr0)==0:
-        return 0
+    delta = b*b - 4*a*c
     
-    vl = vl0/np.linalg.norm(vl0)
-    n = n0/np.linalg.norm(n0)
-    vc = vc0/np.linalg.norm(vc0)
-    vr = vr0/np.linalg.norm(vr0)
+    return jnp.select(condlist=[delta > 0, delta == 0],
+                      choicelist=[plus_petite_racine_positive((a, b, delta)), -b/(2*a)],
+                      default=jnp.nan)
+
+def intersection_sphere_vmap(x, v, liste_sphere):
+    f = vmap(intersection_sphere_jax, in_axes=(None, None, 0))
+    resultat = jnp.array(f(x, v, liste_sphere), dtype='float32')
+    return jnp.where(resultat > 0, resultat, jnp.nan)
+
+"""Calculs des 4 vecteurs nécessaires aux calculs du Phong-Shading"""
+def vecteurs_lumiere(cam_pos, p, lumiere, sphere_pos):
+    n = p - sphere_pos
+    vl = lumiere["position"] - p
+    vc = cam_pos - p
+    vr = 2*jnp.dot(vl, n)*n - vl
+
+    n = n/jnp.linalg.norm(n)
+    vl = vl/jnp.linalg.norm(vl)
+    vc = vc/jnp.linalg.norm(vc)
+    vr = vr/jnp.linalg.norm(vr)
 
     return n, vl, vc, vr
 
-def calcul_lumiere(camera, p, liste_lumiere, liste_sphere, iteration_sphere, alpha):
-    sphere = liste_sphere[iteration_sphere]
+"""Calcul la contribution d'une lumière pour un seul pixel de l'écran"""
+def calcul_lumiere_jax(cam_pos, p, lumiere, liste_sphere, indice_sphere):
     k_a = 0.4
     k_d = 0.5
     k_s = 0.6
-    beta = sphere[3]
 
-    intensite_total = np.zeros(3)
-    for lumiere in liste_lumiere:
-        intensite = 40*lumiere[1]/np.dot(p - lumiere[0], p - lumiere[0])
-        n, vl, vc, vr = vecteurs_lumiere(camera[0], p, lumiere[0], sphere[0])
+    lumiere_pos = lumiere["position"]
+    beta = liste_sphere["metallicite"][indice_sphere]
 
-        alpha, iteration = intersection_sphere(p, lumiere[0] - p, liste_sphere, iteration_sphere)
+    intensite = 40*lumiere["intensite"]/jnp.dot(p - lumiere_pos, p - lumiere_pos)
+    factor = k_a * intensite
 
-        factor = k_a * intensite
+    liste_alpha = intersection_sphere_vmap(p, lumiere_pos - p, liste_sphere)
+    liste_alpha = liste_alpha.at[indice_sphere].set(jnp.nan)
+    alpha = jnp.sort(liste_alpha)[0]
 
-        if not (0 < alpha < 1):
-            factor += k_d * np.dot(vl, n) * intensite + k_s * (np.dot(vr, vc)**beta) * intensite
-
-        intensite_total += factor*lumiere[2]
+    n, vl, vc, vr = vecteurs_lumiere(cam_pos, p, lumiere, liste_sphere["position"][indice_sphere])
+    quantite_lumiere_point = lax.cond(
+        pred        = jnp.logical_or(jnp.isnan(alpha), alpha >= 1), 
+        true_fun    = lambda x: x + k_d * jnp.dot(vl, n) * intensite + k_s * (jnp.dot(vr, vc)**beta) * intensite,
+        false_fun   = lambda x: x,
+        operand     = factor)
     
-    for i in range(3):
-        if intensite_total[i] > 1: intensite_total[i] = 1
-    
-    return intensite_total
+    return quantite_lumiere_point*lumiere["couleur"]
 
-def moyenne_lumiere(camera, liste_lumiere, liste_sphere, iteration_sphere, resolution, pos_pixel_x, pos_pixel_y, alpha, corners): 
-    hauteur_pixel, largeur_pixel = coordonees.taille_pixel(resolution) 
-    e_x= np.random.uniform (-largeur_pixel/2, largeur_pixel/2, 20)
-    e_y = np.random.uniform (-hauteur_pixel/2, hauteur_pixel/2, 20) 
-    lum=0
+"""
+    calcul_lumiere_vmap(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere)
 
-    for i in range(0,20):
-        e = coordonees.local_to_global(pos_pixel_x + e_x[i] , pos_pixel_y + e_y[i], corners, resolution)
-        v= e-camera[0]
+# INPUT :
+* `cam_pos`         Position du point focal
+* `p`               Position du point d'intersection sur la sphère
+* `liste_sphere`    Liste des sphères présentes dans la scène
+* `liste_lumiere`   Liste des lumières présentes dans la scène
+* `indice_sphere`   Sphere sur laquelle le point p se situe
 
-        lum=lum+calcul_lumiere(camera, e + alpha*v, liste_lumiere, liste_sphere, iteration_sphere, alpha) 
-
-    lum=lum/20
-    return lum
+# OUTPUT :
+* `lumiere`         Somme de l'ensemble des contributions des lumières pour la couleur et la luminosité du point p
+"""
+def calcul_lumiere_vmap(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere):
+    f = vmap(calcul_lumiere_jax, in_axes=(None, None, 0, None, None))
+    liste_intensite = f(cam_pos, p, liste_lumiere, liste_sphere, indice_sphere)
+    lumiere = jnp.sum(liste_intensite, axis=0)
+    return jnp.where(lumiere < 1, lumiere, 1)

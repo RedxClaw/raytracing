@@ -1,0 +1,57 @@
+{
+    "sphere": [
+        {
+            "position": [4, 5, 0],
+            "rayon": 2,
+            "texture": {
+                "motif": "damier",
+                "couleurs": [
+                    "orange",
+                    "bleu"
+                ]
+            },
+            "metallicite": 0
+        },
+        {
+            "position": [5, -3, 3],
+            "rayon": 3,
+            "texture": {
+                "motif": "damier",
+                "couleurs": [
+                    "noir",
+                    "blanc"
+                ]
+            },
+            "metallicite": 500
+        },
+        {
+            "position": [-2, 2, 5],
+            "rayon": 5,
+            "texture": {
+                "motif": "spirale",
+                "couleurs": [
+                    "magenta",
+                    "cyan"
+                ]
+            },
+            "metallicite": 500
+        }
+    ],
+    "lumiere": [
+        {
+            "position": [12, -3, 6],
+            "intensite": 2,
+            "couleur": "jaune"
+        },
+        {
+            "position": [3, 12, 6],
+            "intensite": 1.5,
+            "couleur": "cyan"
+        },
+        {
+            "position": [-12, 3, 6],
+            "intensite": 2,
+            "couleur": "magenta"
+        }
+    ]
+}
